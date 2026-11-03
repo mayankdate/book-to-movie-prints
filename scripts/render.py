@@ -25,7 +25,7 @@ def qr_svg(url):
     return img.to_string(encoding="unicode")
 
 
-with open(DATA, newline="", encoding="utf-8") as f:
+with open(DATA, newline="", encoding="utf-8-sig") as f:
     entries = list(csv.DictReader(f))
 
 # When an image file named in the CSV is not on disk, clear the field so the

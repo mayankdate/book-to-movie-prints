@@ -6,4 +6,5 @@ dependencies = [
     "playwright",
     "jinja2",
     "requests",
+    "qrcode",
 ]

@@ -20,6 +20,8 @@ ROOT = Path(__file__).parent.parent
 DATA = ROOT / "data" / "data.csv"
 BOOK_DIR = ROOT / "data" / "bookcovers"
 POSTER_DIR = ROOT / "data" / "movieposters"
+BOOK_DIR.mkdir(parents=True, exist_ok=True)
+POSTER_DIR.mkdir(parents=True, exist_ok=True)
 TMDB_KEY = (ROOT / "TMDB_key.txt").read_text(encoding="utf-8").strip()
 
 TMDB_BASE = "https://api.themoviedb.org/3"
@@ -101,7 +103,7 @@ def ol_fetch(title, author):
     }
 
 
-with open(DATA, newline="", encoding="utf-8") as f:
+with open(DATA, newline="", encoding="utf-8-sig") as f:
     reader = csv.DictReader(f)
     fieldnames = reader.fieldnames
     rows = list(reader)

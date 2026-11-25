@@ -77,6 +77,7 @@ Running `populate.py` again only hits the APIs for rows with empty cells, so you
 
 - Empty `book_image` or `movie_image` → labeled placeholder in the slot. Silent (you're mid-work).
 - Filename present but file missing from disk → placeholder plus terminal warning naming the file.
+- The extension in the CSV is ignored: `tamasi.jpg` matches `tamasi.png`, `tamasi.webp`, etc. To swap an image, drop in a file with the same name in any format. If several files share a name, the most recently modified wins and the terminal lists the ignored ones.
 
 ### QR codes
 

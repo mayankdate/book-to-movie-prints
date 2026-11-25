@@ -28,16 +28,39 @@ def qr_svg(url):
 with open(DATA, newline="", encoding="utf-8-sig") as f:
     entries = list(csv.DictReader(f))
 
-# When an image file named in the CSV is not on disk, clear the field so the
-# template renders a labeled placeholder, and report which files are missing.
+IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".avif"}
+
+
+def find_image(folder, name):
+    """Find the image named in the CSV, ignoring its extension.
+
+    'tamasi.jpg' in the CSV matches tamasi.png, tamasi.webp, etc. If several
+    files share the name, the most recently modified wins and a warning lists
+    the others. Returns the filename on disk, or None if nothing matches.
+    """
+    stem = Path(name).stem
+    matches = [f for f in folder.iterdir() if f.stem == stem and f.suffix.lower() in IMAGE_EXTS]
+    if not matches:
+        return None
+    matches.sort(key=lambda f: f.stat().st_mtime, reverse=True)
+    if len(matches) > 1:
+        others = ", ".join(f.name for f in matches[1:])
+        print(f"Several images named '{stem}' in {folder.name}/: using {matches[0].name}, ignoring {others}")
+    return matches[0].name
+
+
+# Resolve each image named in the CSV to the file on disk, whatever its
+# extension. When none exists, clear the field so the template renders a
+# labeled placeholder, and report which files are missing.
 missing = []
 for e in entries:
-    if e["book_image"] and not (BOOK_DIR / e["book_image"]).exists():
-        missing.append(f"data/bookcovers/{e['book_image']}  (for {e['movie_title']})")
-        e["book_image"] = ""
-    if e["movie_image"] and not (POSTER_DIR / e["movie_image"]).exists():
-        missing.append(f"data/movieposters/{e['movie_image']}  (for {e['movie_title']})")
-        e["movie_image"] = ""
+    for col, folder in (("book_image", BOOK_DIR), ("movie_image", POSTER_DIR)):
+        if not e[col]:
+            continue
+        found = find_image(folder, e[col])
+        if found is None:
+            missing.append(f"data/{folder.name}/{Path(e[col]).stem}.*  (for {e['movie_title']})")
+        e[col] = found or ""
     e["qr_svg"] = qr_svg(e["info_url"]) if e["info_url"] else ""
 
 if missing:
